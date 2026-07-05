@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { loginSchema } from '@/lib/validations/login.schema';
 import type { LoginFormValues } from '@/lib/validations/login.schema';
+
 import { fakeAuthenticate } from '@/lib/auth';
 import { setAuth, isAuthenticated } from '@/lib/authClient';
 
@@ -40,7 +41,7 @@ export default function Login() {
 
       if (ok) {
         // Persist minimal auth state (no password)
-        setAuth({ isAuthenticated: true, username: data.identifier });
+        setAuth({ isAuthenticated: true, username: data.identifier }, data.remember ?? false);
         router.push('/dashboard');
         return;
       }
