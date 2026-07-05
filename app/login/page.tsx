@@ -1,11 +1,16 @@
-﻿'use client';
+﻿"use client";
 
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
 import { loginSchema } from '@/lib/validations/login.schema';
 import type { LoginFormValues } from '@/lib/validations/login.schema';
+import { fakeAuthenticate } from '@/lib/auth';
 
 export default function Login() {
+  const router = useRouter();
+  const [authError, setAuthError] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
@@ -21,10 +26,19 @@ export default function Login() {
 
   const onSubmit = async (data: LoginFormValues) => {
     try {
-      console.log('Login form submitted:', data);
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      setAuthError(null);
+      // Call fake authentication (no API)
+      const ok = await fakeAuthenticate(data.identifier, data.password);
+
+      if (ok) {
+        router.push('/dashboard');
+        return;
+      }
+
+      setAuthError('Tên đăng nhập hoặc mật khẩu không chính xác.');
     } catch (error) {
       console.error('Login error:', error);
+      setAuthError('Đã xảy ra lỗi khi đăng nhập.');
     }
   };
 
@@ -118,6 +132,11 @@ export default function Login() {
                     Quên mật khẩu?
                   </a>
                 </div>
+
+                {/* AUTH ERROR */}
+                {authError && (
+                  <p className="mt-2 text-sm text-rose-600">{authError}</p>
+                )}
 
                 {/* BUTTON */}
                 <button
