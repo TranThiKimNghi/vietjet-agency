@@ -1,12 +1,13 @@
 ﻿"use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { loginSchema } from '@/lib/validations/login.schema';
 import type { LoginFormValues } from '@/lib/validations/login.schema';
 import { fakeAuthenticate } from '@/lib/auth';
+import { setAuth, isAuthenticated } from '@/lib/authClient';
 
 export default function Login() {
   const router = useRouter();
@@ -24,6 +25,13 @@ export default function Login() {
     },
   });
 
+  useEffect(() => {
+    // If auth persisted in localStorage, redirect to dashboard
+    if (isAuthenticated()) {
+      router.push('/dashboard');
+    }
+  }, [router]);
+
   const onSubmit = async (data: LoginFormValues) => {
     try {
       setAuthError(null);
@@ -31,6 +39,8 @@ export default function Login() {
       const ok = await fakeAuthenticate(data.identifier, data.password);
 
       if (ok) {
+        // Persist minimal auth state (no password)
+        setAuth({ isAuthenticated: true, username: data.identifier });
         router.push('/dashboard');
         return;
       }
