@@ -1,6 +1,9 @@
+import ProtectedRoute from '@/components/ProtectedRoute';
+
 export default function Dashboard() {
   return (
-    <div className="space-y-6">
+    <ProtectedRoute>
+      <div className="space-y-6">
       <section className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
         <h1 className="text-3xl font-semibold text-slate-900">Dashboard</h1>
         <p className="mt-3 text-slate-600">Tổng quan về hoạt động đặt vé, khách hàng và chuyến bay.</p>
@@ -23,6 +26,7 @@ export default function Dashboard() {
           <p className="mt-2 text-sm text-slate-600">Chuyến bay đang hoạt động</p>
         </div>
       </section>
-    </div>
+      </div>
+    </ProtectedRoute>
   );
-};
+}
