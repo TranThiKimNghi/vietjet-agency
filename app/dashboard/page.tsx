@@ -41,7 +41,7 @@ export default function Dashboard() {
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-3">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
           <p className="text-sm uppercase tracking-[0.25em] text-slate-500">
             Đặt vé
@@ -69,6 +69,46 @@ export default function Dashboard() {
           <p className="mt-2 text-3xl font-semibold text-slate-900">12</p>
           <p className="mt-2 text-sm text-slate-600">
             Chuyến bay đang hoạt động
+          </p>
+        </div>
+
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <p className="text-sm uppercase tracking-[0.25em] text-slate-500">
+            Doanh thu
+          </p>
+          <p className="mt-2 text-3xl font-semibold text-slate-900">1.250.000.000</p>
+          <p className="mt-2 text-sm text-slate-600">
+            Doanh thu dự kiến hôm nay
+          </p>
+        </div>
+
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <p className="text-sm uppercase tracking-[0.25em] text-slate-500">
+            Hành khách
+          </p>
+          <p className="mt-2 text-3xl font-semibold text-slate-900">973</p>
+          <p className="mt-2 text-sm text-slate-600">
+            Hành khách đã bay trong ngày
+          </p>
+        </div>
+
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <p className="text-sm uppercase tracking-[0.25em] text-slate-500">
+            Chuyến bay quốc tế
+          </p>
+          <p className="mt-2 text-3xl font-semibold text-slate-900">8</p>
+          <p className="mt-2 text-sm text-slate-600">
+            Chuyến quốc tế đang vận hành
+          </p>
+        </div>
+
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <p className="text-sm uppercase tracking-[0.25em] text-slate-500">
+            Tỷ lệ đặt chỗ
+          </p>
+          <p className="mt-2 text-3xl font-semibold text-slate-900">88%</p>
+          <p className="mt-2 text-sm text-slate-600">
+            Tỷ lệ lấp đầy trung bình
           </p>
         </div>
       </section>
