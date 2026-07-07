@@ -34,6 +34,9 @@ export default function DashboardFlights() {
     [searchTerm]
   );
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
   const filteredFlights = useMemo(() => {
     const filtered = flightList.filter((flight) => {
       if (statusFilter && flight.status !== statusFilter) {
@@ -81,6 +84,14 @@ export default function DashboardFlights() {
     return sorted;
   }, [normalizedSearchTerm, statusFilter, typeFilter, sortKey, sortDirection]);
 
+  const totalPages = Math.max(1, Math.ceil(filteredFlights.length / itemsPerPage));
+
+  const pagedFlights = useMemo(() => {
+    const clampedPage = Math.min(currentPage, totalPages);
+    const startIndex = (clampedPage - 1) * itemsPerPage;
+    return filteredFlights.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredFlights, currentPage, totalPages]);
+
   return (
     <div className="space-y-6">
       <section className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
@@ -118,7 +129,10 @@ export default function DashboardFlights() {
                 id="flight-search"
                 type="text"
                 value={searchTerm}
-                onChange={(event) => setSearchTerm(event.target.value)}
+                onChange={(event) => {
+                  setSearchTerm(event.target.value);
+                  setCurrentPage(1);
+                }}
                 placeholder="Mã chuyến, từ, đến..."
                 className="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-200"
               />
@@ -131,7 +145,10 @@ export default function DashboardFlights() {
               <select
                 id="status-filter"
                 value={statusFilter}
-                onChange={(event) => setStatusFilter(event.target.value)}
+                onChange={(event) => {
+                  setStatusFilter(event.target.value);
+                  setCurrentPage(1);
+                }}
                 className="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-200"
               >
                 {statusOptions.map((option) => (
@@ -149,7 +166,10 @@ export default function DashboardFlights() {
               <select
                 id="type-filter"
                 value={typeFilter}
-                onChange={(event) => setTypeFilter(event.target.value)}
+                onChange={(event) => {
+                  setTypeFilter(event.target.value);
+                  setCurrentPage(1);
+                }}
                 className="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-200"
               >
                 {typeOptions.map((option) => (
@@ -167,7 +187,10 @@ export default function DashboardFlights() {
               <select
                 id="sort-key"
                 value={sortKey}
-                onChange={(event) => setSortKey(event.target.value)}
+                onChange={(event) => {
+                  setSortKey(event.target.value);
+                  setCurrentPage(1);
+                }}
                 className="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-200"
               >
                 {sortOptions.map((option) => (
@@ -182,7 +205,10 @@ export default function DashboardFlights() {
               <select
                 id="sort-direction"
                 value={sortDirection}
-                onChange={(event) => setSortDirection(event.target.value as 'asc' | 'desc')}
+                onChange={(event) => {
+                  setSortDirection(event.target.value as 'asc' | 'desc');
+                  setCurrentPage(1);
+                }}
                 className="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-200"
               >
                 <option value="asc">Tăng dần</option>
@@ -199,6 +225,7 @@ export default function DashboardFlights() {
                   setTypeFilter('');
                   setSortKey('');
                   setSortDirection('asc');
+                  setCurrentPage(1);
                 }}
                 className="inline-flex w-full items-center justify-center rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 transition hover:bg-slate-50"
               >
@@ -209,7 +236,7 @@ export default function DashboardFlights() {
         </div>
 
         <div className="overflow-hidden rounded-3xl border border-slate-200 md:shadow-sm">
-          {filteredFlights.length > 0 ? (
+          {pagedFlights.length > 0 ? (
             <>
               <div className="hidden md:block">
                 <table className="min-w-full border-collapse text-left text-sm">
@@ -224,7 +251,7 @@ export default function DashboardFlights() {
                     </tr>
                   </thead>
                   <tbody className="bg-white">
-                    {filteredFlights.map((flight) => (
+                    {pagedFlights.map((flight) => (
                       <FlightRow key={flight.flightCode} flight={flight} />
                     ))}
                   </tbody>
@@ -232,7 +259,7 @@ export default function DashboardFlights() {
               </div>
 
               <div className="grid gap-4 p-4 md:hidden">
-                {filteredFlights.map((flight) => (
+                {pagedFlights.map((flight) => (
                   <div key={flight.flightCode} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
                     <div className="flex items-center justify-between gap-3">
                       <p className="text-sm font-medium text-slate-900">{flight.flightCode}</p>
@@ -263,6 +290,30 @@ export default function DashboardFlights() {
               Không tìm thấy chuyến bay phù hợp với từ khóa.
             </div>
           )}
+        </div>
+
+        <div className="mt-5 flex flex-col items-center justify-between gap-3 border-t border-slate-200 bg-slate-50 px-6 py-4 text-sm text-slate-700 sm:flex-row">
+          <span>
+            Trang {currentPage} / {totalPages}
+          </span>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className="inline-flex items-center justify-center rounded-3xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-900 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Previous
+            </button>
+            <button
+              type="button"
+              onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              className="inline-flex items-center justify-center rounded-3xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-900 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
         </div>
       </section>
     </div>
