@@ -83,6 +83,7 @@ export const upcomingFlights: Flight[] = [
     departureTime: '11:30',
     gate: 'A4',
     status: 'Đã mở cửa',
+    flightType: 'Nội địa',
   },
   {
     flightCode: 'VJ-7245',
@@ -90,6 +91,7 @@ export const upcomingFlights: Flight[] = [
     departureTime: '12:15',
     gate: 'B7',
     status: 'Trễ',
+    flightType: 'Nội địa',
   },
   {
     flightCode: 'VJ-6112',
@@ -97,6 +99,7 @@ export const upcomingFlights: Flight[] = [
     departureTime: '12:50',
     gate: 'C2',
     status: 'Đã đóng cửa',
+    flightType: 'Nội địa',
   },
   {
     flightCode: 'VJ-9903',
@@ -104,6 +107,7 @@ export const upcomingFlights: Flight[] = [
     departureTime: '13:10',
     gate: 'D1',
     status: 'Giờ cất cánh',
+    flightType: 'Nội địa',
   },
   {
     flightCode: 'VJ-5588',
@@ -111,6 +115,7 @@ export const upcomingFlights: Flight[] = [
     departureTime: '13:45',
     gate: 'E5',
     status: 'Sắp khởi hành',
+    flightType: 'Nội địa',
   },
 ];
 
@@ -121,6 +126,7 @@ export const flightList: Flight[] = [
     departureTime: '08:30',
     gate: 'A5',
     status: 'Đã mở cửa',
+    flightType: 'Nội địa',
   },
   {
     flightCode: 'VJ-5678',
@@ -128,6 +134,7 @@ export const flightList: Flight[] = [
     departureTime: '09:45',
     gate: 'B7',
     status: 'Trễ',
+    flightType: 'Nội địa',
   },
   {
     flightCode: 'VJ-9012',
@@ -135,6 +142,7 @@ export const flightList: Flight[] = [
     departureTime: '10:15',
     gate: 'C3',
     status: 'Sắp khởi hành',
+    flightType: 'Nội địa',
   },
   {
     flightCode: 'VJ-3456',
@@ -142,12 +150,14 @@ export const flightList: Flight[] = [
     departureTime: '11:20',
     gate: 'D2',
     status: 'Đã đóng cửa',
+    flightType: 'Nội địa',
   },
   {
     flightCode: 'VJ-7890',
-    route: 'CXR → HAN',
+    route: 'SGN → SIN',
     departureTime: '12:00',
     gate: 'E1',
     status: 'Giờ cất cánh',
+    flightType: 'Quốc tế',
   },
 ];

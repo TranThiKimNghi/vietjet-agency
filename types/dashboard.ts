@@ -21,10 +21,13 @@ export type FlightStatus =
   | 'Giờ cất cánh'
   | 'Sắp khởi hành';
 
+export type FlightType = 'Nội địa' | 'Quốc tế';
+
 export type Flight = {
   flightCode: string;
   route: string;
   departureTime: string;
   gate: string;
   status: FlightStatus;
+  flightType: FlightType;
 };

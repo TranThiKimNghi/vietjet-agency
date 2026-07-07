@@ -5,8 +5,21 @@ import Link from 'next/link';
 import { flightList } from '@/data/dashboard';
 import FlightRow from '@/components/dashboard/FlightRow';
 
+const statusOptions = [
+  '',
+  'Đã mở cửa',
+  'Trễ',
+  'Đã đóng cửa',
+  'Giờ cất cánh',
+  'Sắp khởi hành',
+];
+
+const typeOptions = ['', 'Nội địa', 'Quốc tế'];
+
 export default function DashboardFlights() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
 
   const normalizedSearchTerm = useMemo(
     () => searchTerm.trim().toLowerCase(),
@@ -14,11 +27,19 @@ export default function DashboardFlights() {
   );
 
   const filteredFlights = useMemo(() => {
-    if (!normalizedSearchTerm) {
-      return flightList;
-    }
-
     return flightList.filter((flight) => {
+      if (statusFilter && flight.status !== statusFilter) {
+        return false;
+      }
+
+      if (typeFilter && flight.flightType !== typeFilter) {
+        return false;
+      }
+
+      if (!normalizedSearchTerm) {
+        return true;
+      }
+
       const flightCode = flight.flightCode.toLowerCase();
       const route = flight.route.toLowerCase();
       return (
@@ -26,7 +47,7 @@ export default function DashboardFlights() {
         route.includes(normalizedSearchTerm)
       );
     });
-  }, [normalizedSearchTerm]);
+  }, [normalizedSearchTerm, statusFilter, typeFilter]);
 
   return (
     <div className="space-y-6">
@@ -48,25 +69,78 @@ export default function DashboardFlights() {
       </section>
 
       <section className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mb-6 space-y-4">
           <div>
             <h2 className="text-2xl font-semibold text-slate-900">Danh sách chuyến bay</h2>
             <p className="mt-2 text-sm text-slate-600">
               Danh sách chuyến bay đang vận hành và thông tin cất cánh mới nhất.
             </p>
           </div>
-          <div className="w-full sm:w-[320px]">
-            <label className="block text-sm font-medium text-slate-700" htmlFor="flight-search">
-              Tìm kiếm chuyến bay
-            </label>
-            <input
-              id="flight-search"
-              type="text"
-              value={searchTerm}
-              onChange={(event) => setSearchTerm(event.target.value)}
-              placeholder="Mã chuyến, từ, đến..."
-              className="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-200"
-            />
+
+          <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr_1fr_0.8fr]">
+            <div>
+              <label className="block text-sm font-medium text-slate-700" htmlFor="flight-search">
+                Tìm kiếm chuyến bay
+              </label>
+              <input
+                id="flight-search"
+                type="text"
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                placeholder="Mã chuyến, từ, đến..."
+                className="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-200"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700" htmlFor="status-filter">
+                Trạng thái
+              </label>
+              <select
+                id="status-filter"
+                value={statusFilter}
+                onChange={(event) => setStatusFilter(event.target.value)}
+                className="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-200"
+              >
+                {statusOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option || 'Tất cả'}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700" htmlFor="type-filter">
+                Loại chuyến bay
+              </label>
+              <select
+                id="type-filter"
+                value={typeFilter}
+                onChange={(event) => setTypeFilter(event.target.value)}
+                className="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-200"
+              >
+                {typeOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option || 'Tất cả'}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-end">
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchTerm('');
+                  setStatusFilter('');
+                  setTypeFilter('');
+                }}
+                className="inline-flex w-full items-center justify-center rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 transition hover:bg-slate-50"
+              >
+                Reset bộ lọc
+              </button>
+            </div>
           </div>
         </div>
 
