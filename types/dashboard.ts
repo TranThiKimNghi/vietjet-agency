@@ -30,4 +30,5 @@ export type Flight = {
   gate: string;
   status: FlightStatus;
   flightType: FlightType;
+  price: number;
 };

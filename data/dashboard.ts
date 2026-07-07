@@ -84,6 +84,7 @@ export const upcomingFlights: Flight[] = [
     gate: 'A4',
     status: 'Đã mở cửa',
     flightType: 'Nội địa',
+    price: 1200000,
   },
   {
     flightCode: 'VJ-7245',
@@ -92,6 +93,7 @@ export const upcomingFlights: Flight[] = [
     gate: 'B7',
     status: 'Trễ',
     flightType: 'Nội địa',
+    price: 950000,
   },
   {
     flightCode: 'VJ-6112',
@@ -100,6 +102,7 @@ export const upcomingFlights: Flight[] = [
     gate: 'C2',
     status: 'Đã đóng cửa',
     flightType: 'Nội địa',
+    price: 850000,
   },
   {
     flightCode: 'VJ-9903',
@@ -108,6 +111,7 @@ export const upcomingFlights: Flight[] = [
     gate: 'D1',
     status: 'Giờ cất cánh',
     flightType: 'Nội địa',
+    price: 1250000,
   },
   {
     flightCode: 'VJ-5588',
@@ -116,6 +120,7 @@ export const upcomingFlights: Flight[] = [
     gate: 'E5',
     status: 'Sắp khởi hành',
     flightType: 'Nội địa',
+    price: 900000,
   },
 ];
 
@@ -127,6 +132,7 @@ export const flightList: Flight[] = [
     gate: 'A5',
     status: 'Đã mở cửa',
     flightType: 'Nội địa',
+    price: 1150000,
   },
   {
     flightCode: 'VJ-5678',
@@ -135,6 +141,7 @@ export const flightList: Flight[] = [
     gate: 'B7',
     status: 'Trễ',
     flightType: 'Nội địa',
+    price: 950000,
   },
   {
     flightCode: 'VJ-9012',
@@ -143,6 +150,7 @@ export const flightList: Flight[] = [
     gate: 'C3',
     status: 'Sắp khởi hành',
     flightType: 'Nội địa',
+    price: 980000,
   },
   {
     flightCode: 'VJ-3456',
@@ -151,6 +159,7 @@ export const flightList: Flight[] = [
     gate: 'D2',
     status: 'Đã đóng cửa',
     flightType: 'Nội địa',
+    price: 820000,
   },
   {
     flightCode: 'VJ-7890',
@@ -159,5 +168,6 @@ export const flightList: Flight[] = [
     gate: 'E1',
     status: 'Giờ cất cánh',
     flightType: 'Quốc tế',
+    price: 2600000,
   },
 ];

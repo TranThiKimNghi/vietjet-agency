@@ -15,11 +15,19 @@ const statusOptions = [
 ];
 
 const typeOptions = ['', 'Nội địa', 'Quốc tế'];
+const sortOptions = [
+  { value: '', label: 'Không sắp xếp' },
+  { value: 'flightCode', label: 'Mã chuyến bay' },
+  { value: 'departureTime', label: 'Thời gian khởi hành' },
+  { value: 'price', label: 'Giá vé' },
+];
 
 export default function DashboardFlights() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
+  const [sortKey, setSortKey] = useState('');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   const normalizedSearchTerm = useMemo(
     () => searchTerm.trim().toLowerCase(),
@@ -27,7 +35,7 @@ export default function DashboardFlights() {
   );
 
   const filteredFlights = useMemo(() => {
-    return flightList.filter((flight) => {
+    const filtered = flightList.filter((flight) => {
       if (statusFilter && flight.status !== statusFilter) {
         return false;
       }
@@ -47,7 +55,31 @@ export default function DashboardFlights() {
         route.includes(normalizedSearchTerm)
       );
     });
-  }, [normalizedSearchTerm, statusFilter, typeFilter]);
+
+    if (!sortKey) {
+      return filtered;
+    }
+
+    const sorted = [...filtered].sort((a, b) => {
+      let compare = 0;
+
+      if (sortKey === 'flightCode') {
+        compare = a.flightCode.localeCompare(b.flightCode, 'vi', { numeric: true });
+      }
+
+      if (sortKey === 'departureTime') {
+        compare = a.departureTime.localeCompare(b.departureTime, 'vi', { numeric: true });
+      }
+
+      if (sortKey === 'price') {
+        compare = a.price - b.price;
+      }
+
+      return sortDirection === 'asc' ? compare : -compare;
+    });
+
+    return sorted;
+  }, [normalizedSearchTerm, statusFilter, typeFilter, sortKey, sortDirection]);
 
   return (
     <div className="space-y-6">
@@ -77,7 +109,7 @@ export default function DashboardFlights() {
             </p>
           </div>
 
-          <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr_1fr_0.8fr]">
+          <div className="grid gap-4 xl:grid-cols-[1.3fr_1fr_1fr_1fr_0.9fr]">
             <div>
               <label className="block text-sm font-medium text-slate-700" htmlFor="flight-search">
                 Tìm kiếm chuyến bay
@@ -128,6 +160,36 @@ export default function DashboardFlights() {
               </select>
             </div>
 
+            <div>
+              <label className="block text-sm font-medium text-slate-700" htmlFor="sort-key">
+                Sắp xếp theo
+              </label>
+              <select
+                id="sort-key"
+                value={sortKey}
+                onChange={(event) => setSortKey(event.target.value)}
+                className="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-200"
+              >
+                {sortOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-end gap-3">
+              <select
+                id="sort-direction"
+                value={sortDirection}
+                onChange={(event) => setSortDirection(event.target.value as 'asc' | 'desc')}
+                className="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-200"
+              >
+                <option value="asc">Tăng dần</option>
+                <option value="desc">Giảm dần</option>
+              </select>
+            </div>
+
             <div className="flex items-end">
               <button
                 type="button"
@@ -135,6 +197,8 @@ export default function DashboardFlights() {
                   setSearchTerm('');
                   setStatusFilter('');
                   setTypeFilter('');
+                  setSortKey('');
+                  setSortDirection('asc');
                 }}
                 className="inline-flex w-full items-center justify-center rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 transition hover:bg-slate-50"
               >
@@ -150,11 +214,12 @@ export default function DashboardFlights() {
               <div className="hidden md:block">
                 <table className="min-w-full border-collapse text-left text-sm">
                   <thead className="bg-slate-50 text-slate-500">
-                    <tr>
+                      <tr>
                       <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Mã chuyến</th>
                       <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Tuyến bay</th>
                       <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Khởi hành</th>
                       <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Gate</th>
+                      <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Giá vé</th>
                       <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Trạng thái</th>
                     </tr>
                   </thead>
@@ -184,6 +249,9 @@ export default function DashboardFlights() {
                       </p>
                       <p>
                         <span className="font-medium text-slate-900">Gate:</span> {flight.gate}
+                      </p>
+                      <p>
+                        <span className="font-medium text-slate-900">Giá vé:</span> {flight.price.toLocaleString('vi-VN')} ₫
                       </p>
                     </div>
                   </div>
