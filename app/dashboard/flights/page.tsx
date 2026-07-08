@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { flightList } from '@/data/dashboard';
 import FlightRow from '@/components/dashboard/FlightRow';
 import FlightDetailModal from '@/components/FlightDetailModal';
+import AddFlightModal from '@/components/AddFlightModal';
 import { Flight } from '@/types/dashboard';
 
 const statusOptions = [
@@ -32,6 +33,8 @@ export default function DashboardFlights() {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [selectedFlight, setSelectedFlight] = useState<Flight | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [flights, setFlights] = useState<Flight[]>(() => [...flightList]);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 5;
 
@@ -41,7 +44,7 @@ export default function DashboardFlights() {
   );
 
   const filteredFlights = useMemo(() => {
-    const filtered = flightList.filter((flight) => {
+    const filtered = flights.filter((flight) => {
       if (statusFilter && flight.status !== statusFilter) {
         return false;
       }
@@ -85,7 +88,7 @@ export default function DashboardFlights() {
     });
 
     return sorted;
-  }, [normalizedSearchTerm, statusFilter, typeFilter, sortKey, sortDirection]);
+  }, [normalizedSearchTerm, statusFilter, typeFilter, sortKey, sortDirection, flights]);
 
   const totalPages = Math.max(1, Math.ceil(filteredFlights.length / pageSize));
 
@@ -106,12 +109,20 @@ export default function DashboardFlights() {
               Xem danh sách chuyến bay hiện tại, trạng thái và thông tin cổng khởi hành.
             </p>
           </div>
-          <Link
-            href="/dashboard"
-            className="inline-flex items-center justify-center rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 transition hover:bg-slate-50"
-          >
-            Trở về Dashboard
-          </Link>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setIsAddOpen(true)}
+              className="inline-flex items-center justify-center rounded-3xl bg-slate-900 px-4 py-3 text-sm font-medium text-white hover:bg-slate-800"
+            >
+              Thêm chuyến bay
+            </button>
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center justify-center rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 transition hover:bg-slate-50"
+            >
+              Trở về Dashboard
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -315,6 +326,15 @@ export default function DashboardFlights() {
           </button>
         </div>
       </section>
+      {isAddOpen && (
+        <AddFlightModal
+          onClose={() => setIsAddOpen(false)}
+          onAdd={(f) => {
+            setFlights((s) => [f, ...s]);
+            setCurrentPage(1);
+          }}
+        />
+      )}
       {isModalOpen && selectedFlight && (
         <FlightDetailModal
           flight={selectedFlight}
