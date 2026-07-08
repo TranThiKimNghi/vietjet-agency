@@ -9,6 +9,7 @@ import AddFlightModal from '@/components/AddFlightModal';
 import FlightStatistics from '@/components/dashboard/FlightStatistics';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { Flight } from '@/types/dashboard';
+import StatusBadge from '@/components/StatusBadge';
 
 const statusOptions = [
   '',
@@ -293,9 +294,7 @@ export default function DashboardFlights() {
                   >
                     <div className="flex items-center justify-between gap-3">
                       <p className="text-sm font-medium text-slate-900">{flight.flightCode}</p>
-                      <span className="inline-flex rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                        {flight.status}
-                      </span>
+                      <StatusBadge status={flight.status} />
                     </div>
                     <div className="mt-3 space-y-2 text-sm text-slate-700">
                       <p>

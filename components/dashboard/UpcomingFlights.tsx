@@ -1,6 +1,7 @@
 import { upcomingFlights } from '@/data/dashboard';
 import FlightRow from './FlightRow';
 import { Flight } from '@/types/dashboard';
+import StatusBadge from '@/components/StatusBadge';
 
 export default function UpcomingFlights({
   onOpenFlight,
@@ -12,22 +13,20 @@ export default function UpcomingFlights({
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-2xl font-semibold text-slate-900">Chuyến bay sắp khởi hành</h2>
-          <p className="mt-2 text-sm text-slate-600">
-            Danh sách chuyến bay sắp cất cánh tiếp theo.
-          </p>
+          <p className="mt-2 text-sm text-slate-600">Danh sách chuyến bay sắp cất cánh tiếp theo.</p>
         </div>
-      </div>
 
-      <div className="overflow-hidden rounded-3xl border border-slate-200 md:shadow-sm">
         <div className="hidden md:block">
-          <table className="min-w-full border-collapse text-left text-sm">
-            <thead className="bg-slate-50 text-slate-500">
+          <table className="w-full table-auto">
+            <thead>
               <tr>
-                <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Mã chuyến bay</th>
+                <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Mã</th>
                 <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Tuyến bay</th>
                 <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Giờ khởi hành</th>
                 <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Gate</th>
+                <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Giá</th>
                 <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Trạng thái</th>
+                <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Hành động</th>
               </tr>
             </thead>
             <tbody className="bg-white">
@@ -47,9 +46,7 @@ export default function UpcomingFlights({
             >
               <div className="flex items-center justify-between gap-3">
                 <p className="text-sm font-medium text-slate-900">{flight.flightCode}</p>
-                <span className="inline-flex rounded-full px-3 py-1 text-xs font-semibold text-slate-700 bg-violet-100">
-                  {flight.status}
-                </span>
+                <StatusBadge status={flight.status} />
               </div>
               <div className="mt-3 space-y-2 text-sm text-slate-700">
                 <p>
