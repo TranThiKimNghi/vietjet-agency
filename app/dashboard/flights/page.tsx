@@ -6,6 +6,7 @@ import { flightList } from '@/data/dashboard';
 import FlightRow from '@/components/dashboard/FlightRow';
 import FlightDetailModal from '@/components/FlightDetailModal';
 import AddFlightModal from '@/components/AddFlightModal';
+import ConfirmDialog from '@/components/ConfirmDialog';
 import { Flight } from '@/types/dashboard';
 
 const statusOptions = [
@@ -36,6 +37,8 @@ export default function DashboardFlights() {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [flights, setFlights] = useState<Flight[]>(() => [...flightList]);
   const [editingFlight, setEditingFlight] = useState<Flight | null>(null);
+  const [deletingFlight, setDeletingFlight] = useState<Flight | null>(null);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 5;
 
@@ -265,6 +268,10 @@ export default function DashboardFlights() {
                                 setEditingFlight(f);
                                 setIsAddOpen(true);
                               }}
+                              onDelete={(f) => {
+                                setDeletingFlight(f);
+                                setIsConfirmOpen(true);
+                              }}
                             />
                           ))}
                   </tbody>
@@ -348,6 +355,26 @@ export default function DashboardFlights() {
               setCurrentPage(1);
             }
             setEditingFlight(null);
+          }}
+        />
+      )}
+      {isConfirmOpen && deletingFlight && (
+        <ConfirmDialog
+          title="Xác nhận xóa"
+          message={`Bạn có chắc muốn xóa chuyến ${deletingFlight.flightCode}?`}
+          onCancel={() => {
+            setIsConfirmOpen(false);
+            setDeletingFlight(null);
+          }}
+          onConfirm={() => {
+            setFlights((prev) => {
+              const updated = prev.filter((it) => it.flightCode !== deletingFlight.flightCode);
+              const newTotalPages = Math.max(1, Math.ceil(updated.length / pageSize));
+              setCurrentPage((p) => Math.min(p, newTotalPages));
+              return updated;
+            });
+            setIsConfirmOpen(false);
+            setDeletingFlight(null);
           }}
         />
       )}

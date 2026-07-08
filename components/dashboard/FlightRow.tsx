@@ -4,11 +4,13 @@ export default function FlightRow({
   flight,
   onOpen,
   onEdit,
+  onDelete,
   showActions,
 }: {
   flight: Flight;
   onOpen?: (f: Flight) => void;
   onEdit?: (f: Flight) => void;
+  onDelete?: (f: Flight) => void;
   showActions?: boolean;
 }) {
   return (
@@ -44,6 +46,16 @@ export default function FlightRow({
               className="inline-flex items-center gap-2 rounded-3xl border border-slate-200 bg-white px-3 py-1 text-sm font-medium text-slate-900 hover:bg-slate-50"
             >
               Chỉnh sửa
+            </button>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete?.(flight);
+              }}
+              className="inline-flex items-center gap-2 rounded-3xl border border-red-200 bg-white px-3 py-1 text-sm font-medium text-red-600 hover:bg-red-50"
+            >
+              Xóa
             </button>
           </div>
         </td>
