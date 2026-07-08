@@ -6,6 +6,7 @@ import { flightList } from '@/data/dashboard';
 import FlightRow from '@/components/dashboard/FlightRow';
 import FlightDetailModal from '@/components/FlightDetailModal';
 import AddFlightModal from '@/components/AddFlightModal';
+import FlightStatistics from '@/components/dashboard/FlightStatistics';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { Flight } from '@/types/dashboard';
 
@@ -138,6 +139,8 @@ export default function DashboardFlights() {
               Danh sách chuyến bay đang vận hành và thông tin cất cánh mới nhất.
             </p>
           </div>
+
+          <FlightStatistics flights={flights} />
 
           <div className="grid gap-4 xl:grid-cols-[1.3fr_1fr_1fr_1fr_0.9fr]">
             <div>
