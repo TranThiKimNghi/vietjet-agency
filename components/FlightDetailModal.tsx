@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Flight } from '@/types/dashboard';
+import StatusBadge from '@/components/StatusBadge';
 
 export default function FlightDetailModal({
   flight,
@@ -63,7 +64,9 @@ export default function FlightDetailModal({
           </div>
           <div>
             <p className="text-sm text-slate-500">Trạng thái</p>
-            <p className="mt-1 font-medium text-slate-900">{flight.status}</p>
+            <div className="mt-1">
+              <StatusBadge status={flight.status} />
+            </div>
           </div>
           <div>
             <p className="text-sm text-slate-500">Giá</p>
