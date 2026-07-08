@@ -1,8 +1,16 @@
 import { Flight } from '@/types/dashboard';
 
-export default function FlightRow({ flight }: { flight: Flight }) {
+export default function FlightRow({
+  flight,
+  onOpen,
+  showActions,
+}: {
+  flight: Flight;
+  onOpen?: (f: Flight) => void;
+  showActions?: boolean;
+}) {
   return (
-    <tr className="border-t border-slate-200">
+    <tr className="border-t border-slate-200 hover:bg-slate-50">
       <td className="px-6 py-4 font-medium text-slate-900">{flight.flightCode}</td>
       <td className="px-6 py-4 text-slate-700">{flight.route}</td>
       <td className="px-6 py-4 text-slate-700">{flight.departureTime}</td>
@@ -13,6 +21,19 @@ export default function FlightRow({ flight }: { flight: Flight }) {
           {flight.status}
         </span>
       </td>
+      {showActions ? (
+        <td className="px-6 py-4 text-right">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpen?.(flight);
+            }}
+            className="inline-flex items-center gap-2 rounded-3xl border border-slate-200 bg-white px-3 py-1 text-sm font-medium text-slate-900 hover:bg-slate-50"
+          >
+            Xem chi tiết
+          </button>
+        </td>
+      ) : null}
     </tr>
   );
 }

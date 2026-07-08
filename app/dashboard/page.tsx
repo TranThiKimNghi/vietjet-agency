@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { isAuthenticated } from '@/lib/authClient';
@@ -8,9 +8,14 @@ import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import StatisticsGrid from '@/components/dashboard/StatisticsGrid';
 import RecentActivities from '@/components/dashboard/RecentActivities';
 import UpcomingFlights from '@/components/dashboard/UpcomingFlights';
+import FlightDetailModal from '@/components/FlightDetailModal';
+import { Flight } from '@/types/dashboard';
 
 export default function Dashboard() {
   const router = useRouter();
+
+  const [selectedFlight, setSelectedFlight] = useState<Flight | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated()) {
@@ -40,7 +45,20 @@ export default function Dashboard() {
       </section>
       <StatisticsGrid />
       <RecentActivities />
-      <UpcomingFlights />
+      <UpcomingFlights onOpenFlight={(f) => {
+        setSelectedFlight(f);
+        setIsModalOpen(true);
+      }} />
+
+      {isModalOpen && selectedFlight && (
+        <FlightDetailModal
+          flight={selectedFlight}
+          onClose={() => {
+            setIsModalOpen(false);
+            setSelectedFlight(null);
+          }}
+        />
+      )}
     </div>
   );
 }

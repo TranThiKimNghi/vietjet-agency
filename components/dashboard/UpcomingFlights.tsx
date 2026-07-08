@@ -1,7 +1,12 @@
 import { upcomingFlights } from '@/data/dashboard';
 import FlightRow from './FlightRow';
+import { Flight } from '@/types/dashboard';
 
-export default function UpcomingFlights() {
+export default function UpcomingFlights({
+  onOpenFlight,
+}: {
+  onOpenFlight?: (f: Flight) => void;
+}) {
   return (
     <section className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -27,7 +32,7 @@ export default function UpcomingFlights() {
             </thead>
             <tbody className="bg-white">
               {upcomingFlights.map((flight) => (
-                <FlightRow key={flight.flightCode} flight={flight} />
+                <FlightRow key={flight.flightCode} flight={flight} onOpen={onOpenFlight} />
               ))}
             </tbody>
           </table>
@@ -37,7 +42,8 @@ export default function UpcomingFlights() {
           {upcomingFlights.map((flight) => (
             <div
               key={flight.flightCode}
-              className="rounded-3xl border border-slate-200 bg-slate-50 p-4"
+              className="rounded-3xl border border-slate-200 bg-slate-50 p-4 cursor-pointer"
+              onClick={() => onOpenFlight?.(flight)}
             >
               <div className="flex items-center justify-between gap-3">
                 <p className="text-sm font-medium text-slate-900">{flight.flightCode}</p>
