@@ -4,17 +4,19 @@ import { Flight } from '@/types/dashboard';
 export default function AddFlightModal({
   onClose,
   onAdd,
+  initialFlight,
 }: {
   onClose: () => void;
   onAdd: (flight: Flight) => void;
+  initialFlight?: Flight | null;
 }) {
-  const [flightCode, setFlightCode] = useState('');
-  const [route, setRoute] = useState('');
-  const [departureTime, setDepartureTime] = useState('');
-  const [gate, setGate] = useState('');
-  const [status, setStatus] = useState<'Đã mở cửa' | 'Trễ' | 'Đã đóng cửa' | 'Giờ cất cánh' | 'Sắp khởi hành'>('Sắp khởi hành');
-  const [flightType, setFlightType] = useState<'Nội địa' | 'Quốc tế'>('Nội địa');
-  const [price, setPrice] = useState<number | ''>('');
+  const [flightCode, setFlightCode] = useState(initialFlight?.flightCode ?? '');
+  const [route, setRoute] = useState(initialFlight?.route ?? '');
+  const [departureTime, setDepartureTime] = useState(initialFlight?.departureTime ?? '');
+  const [gate, setGate] = useState(initialFlight?.gate ?? '');
+  const [status, setStatus] = useState<'Đã mở cửa' | 'Trễ' | 'Đã đóng cửa' | 'Giờ cất cánh' | 'Sắp khởi hành'>(initialFlight?.status ?? 'Sắp khởi hành');
+  const [flightType, setFlightType] = useState<'Nội địa' | 'Quốc tế'>(initialFlight?.flightType ?? 'Nội địa');
+  const [price, setPrice] = useState<number | ''>(initialFlight?.price ?? '');
   const [error, setError] = useState('');
 
   function handleSubmit(e: React.FormEvent) {
