@@ -35,6 +35,7 @@ export default function DashboardFlights() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [flights, setFlights] = useState<Flight[]>(() => [...flightList]);
+  const [editingFlight, setEditingFlight] = useState<Flight | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 5;
 
@@ -260,6 +261,10 @@ export default function DashboardFlights() {
                                 setSelectedFlight(f);
                                 setIsModalOpen(true);
                               }}
+                              onEdit={(f) => {
+                                setEditingFlight(f);
+                                setIsAddOpen(true);
+                              }}
                             />
                           ))}
                   </tbody>
@@ -328,10 +333,21 @@ export default function DashboardFlights() {
       </section>
       {isAddOpen && (
         <AddFlightModal
-          onClose={() => setIsAddOpen(false)}
+          initialFlight={editingFlight ?? null}
+          onClose={() => {
+            setIsAddOpen(false);
+            setEditingFlight(null);
+          }}
           onAdd={(f) => {
-            setFlights((s) => [f, ...s]);
-            setCurrentPage(1);
+            if (editingFlight) {
+              // update existing
+              setFlights((s) => s.map((it) => (it.flightCode === editingFlight.flightCode ? f : it)));
+            } else {
+              // add new
+              setFlights((s) => [f, ...s]);
+              setCurrentPage(1);
+            }
+            setEditingFlight(null);
           }}
         />
       )}
