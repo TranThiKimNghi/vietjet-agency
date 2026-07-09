@@ -35,12 +35,20 @@ export default function Dashboard() {
               Truy cập trang quản lý chuyến bay để xem danh sách và trạng thái chi tiết.
             </p>
           </div>
-          <Link
-            href="/dashboard/flights"
-            className="inline-flex items-center justify-center rounded-3xl bg-slate-900 px-5 py-3 text-sm font-medium text-white transition hover:bg-slate-800"
-          >
-            Mở quản lý chuyến bay
-          </Link>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Link
+              href="/dashboard/flights"
+              className="inline-flex items-center justify-center rounded-3xl bg-slate-900 px-5 py-3 text-sm font-medium text-white transition hover:bg-slate-800"
+            >
+              Mở quản lý chuyến bay
+            </Link>
+            <Link
+              href="/dashboard/bookings"
+              className="inline-flex items-center justify-center rounded-3xl border border-slate-200 bg-white px-5 py-3 text-sm font-medium text-slate-900 transition hover:bg-slate-50"
+            >
+              Mở quản lý đặt vé
+            </Link>
+          </div>
         </div>
       </section>
       <StatisticsGrid />
