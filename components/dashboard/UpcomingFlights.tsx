@@ -1,7 +1,7 @@
 import { upcomingFlights } from '@/data/dashboard';
 import FlightRow from './FlightRow';
+import FlightCard from './FlightCard';
 import { Flight } from '@/types/dashboard';
-import StatusBadge from '@/components/StatusBadge';
 
 export default function UpcomingFlights({
   onOpenFlight,
@@ -39,27 +39,11 @@ export default function UpcomingFlights({
 
         <div className="grid gap-4 p-4 md:hidden">
           {upcomingFlights.map((flight) => (
-            <div
+            <FlightCard
               key={flight.flightCode}
-              className="rounded-3xl border border-slate-200 bg-slate-50 p-4 cursor-pointer"
-              onClick={() => onOpenFlight?.(flight)}
-            >
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-sm font-medium text-slate-900">{flight.flightCode}</p>
-                <StatusBadge status={flight.status} />
-              </div>
-              <div className="mt-3 space-y-2 text-sm text-slate-700">
-                <p>
-                  <span className="font-medium text-slate-900">Tuyến bay:</span> {flight.route}
-                </p>
-                <p>
-                  <span className="font-medium text-slate-900">Khởi hành:</span> {flight.departureTime}
-                </p>
-                <p>
-                  <span className="font-medium text-slate-900">Gate:</span> {flight.gate}
-                </p>
-              </div>
-            </div>
+              flight={flight}
+              onClick={onOpenFlight}
+            />
           ))}
         </div>
       </div>
