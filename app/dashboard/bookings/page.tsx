@@ -3,6 +3,8 @@
 import { useMemo, useState } from 'react';
 import { bookingList } from '@/data/bookings';
 import BookingRow from '@/components/dashboard/BookingRow';
+import BookingDetailModal from '@/components/dashboard/BookingDetailModal';
+import BookingStatistics from '@/components/dashboard/BookingStatistics';
 import Link from 'next/link';
 
 const statusOptions = ['', 'Đã xác nhận', 'Chờ', 'Huỷ'];
@@ -19,6 +21,8 @@ export default function DashboardBookings() {
   const [sortKey, setSortKey] = useState('');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedBooking, setSelectedBooking] = useState<null | (typeof bookingList)[number]>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
   const pageSize = 10;
 
   const normalizedSearchTerm = useMemo(
@@ -93,6 +97,10 @@ export default function DashboardBookings() {
             Trở về Dashboard
           </Link>
         </div>
+      </section>
+
+      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <BookingStatistics bookings={bookingList} />
       </section>
 
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -195,7 +203,10 @@ export default function DashboardBookings() {
                 </tr>
               ) : (
                 paginatedBookings.map((booking) => (
-                  <BookingRow key={booking.id} booking={booking} />
+                  <BookingRow key={booking.id} booking={booking} onOpen={(bookingData) => {
+                    setSelectedBooking(bookingData);
+                    setIsDetailOpen(true);
+                  }} />
                 ))
               )}
             </tbody>
@@ -231,7 +242,15 @@ export default function DashboardBookings() {
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {paginatedBookings.map((booking) => (
-            <div key={booking.id} className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+            <button
+              key={booking.id}
+              type="button"
+              onClick={() => {
+                setSelectedBooking(booking);
+                setIsDetailOpen(true);
+              }}
+              className="rounded-3xl border border-slate-200 bg-slate-50 p-5 text-left hover:bg-slate-100"
+            >
               <div className="flex items-center justify-between gap-3">
                 <p className="text-sm font-medium text-slate-900">{booking.id}</p>
                 <span
@@ -270,10 +289,20 @@ export default function DashboardBookings() {
                   }).format(booking.price)}
                 </p>
               </div>
-            </div>
+            </button>
           ))}
         </div>
       </section>
+
+      {isDetailOpen && selectedBooking && (
+        <BookingDetailModal
+          booking={selectedBooking}
+          onClose={() => {
+            setIsDetailOpen(false);
+            setSelectedBooking(null);
+          }}
+        />
+      )}
     </div>
   );
 }
