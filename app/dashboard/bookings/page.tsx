@@ -1,11 +1,14 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import Link from 'next/link';
 import { bookingList } from '@/data/bookings';
 import BookingRow from '@/components/dashboard/BookingRow';
 import BookingDetailModal from '@/components/dashboard/BookingDetailModal';
 import BookingStatistics from '@/components/dashboard/BookingStatistics';
-import Link from 'next/link';
+import BookingFormModal from '@/components/dashboard/BookingFormModal';
+import ConfirmDialog from '@/components/ConfirmDialog';
+import { Booking } from '@/types/booking';
 
 const statusOptions = ['', 'Đã xác nhận', 'Chờ', 'Huỷ'];
 const sortOptions = [
@@ -21,8 +24,13 @@ export default function DashboardBookings() {
   const [sortKey, setSortKey] = useState('');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedBooking, setSelectedBooking] = useState<null | (typeof bookingList)[number]>(null);
+  const [bookings, setBookings] = useState<Booking[]>(() => [...bookingList]);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
+  const [bookingToDelete, setBookingToDelete] = useState<Booking | null>(null);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const pageSize = 10;
 
   const normalizedSearchTerm = useMemo(
@@ -31,7 +39,7 @@ export default function DashboardBookings() {
   );
 
   const filteredBookings = useMemo(() => {
-    const filtered = bookingList.filter((booking) => {
+    const filtered = bookings.filter((booking) => {
       if (statusFilter && booking.status !== statusFilter) {
         return false;
       }
@@ -69,7 +77,7 @@ export default function DashboardBookings() {
     });
 
     return sorted;
-  }, [normalizedSearchTerm, statusFilter, sortKey, sortDirection]);
+  }, [bookings, normalizedSearchTerm, statusFilter, sortKey, sortDirection]);
 
   const totalPages = Math.max(1, Math.ceil(filteredBookings.length / pageSize));
   const effectivePage = Math.min(currentPage, totalPages);
@@ -90,17 +98,29 @@ export default function DashboardBookings() {
               Xem danh sách booking hiện tại và trạng thái đơn đặt vé.
             </p>
           </div>
-          <Link
-            href="/dashboard"
-            className="inline-flex items-center justify-center rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 transition hover:bg-slate-50"
-          >
-            Trở về Dashboard
-          </Link>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <button
+              type="button"
+              onClick={() => {
+                setEditingBooking(null);
+                setIsFormOpen(true);
+              }}
+              className="inline-flex items-center justify-center rounded-3xl bg-slate-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-slate-800"
+            >
+              Thêm booking
+            </button>
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center justify-center rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-900 transition hover:bg-slate-50"
+            >
+              Trở về Dashboard
+            </Link>
+          </div>
         </div>
       </section>
 
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <BookingStatistics bookings={bookingList} />
+        <BookingStatistics bookings={bookings} />
       </section>
 
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -192,6 +212,7 @@ export default function DashboardBookings() {
                 <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Hạng</th>
                 <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Giá</th>
                 <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Trạng thái</th>
+                <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Thao tác</th>
               </tr>
             </thead>
             <tbody className="bg-white">
@@ -203,10 +224,22 @@ export default function DashboardBookings() {
                 </tr>
               ) : (
                 paginatedBookings.map((booking) => (
-                  <BookingRow key={booking.id} booking={booking} onOpen={(bookingData) => {
-                    setSelectedBooking(bookingData);
-                    setIsDetailOpen(true);
-                  }} />
+                  <BookingRow
+                    key={booking.id}
+                    booking={booking}
+                    onOpen={(bookingData) => {
+                      setSelectedBooking(bookingData);
+                      setIsDetailOpen(true);
+                    }}
+                    onEdit={(bookingData) => {
+                      setEditingBooking(bookingData);
+                      setIsFormOpen(true);
+                    }}
+                    onDelete={(bookingData) => {
+                      setBookingToDelete(bookingData);
+                      setIsConfirmOpen(true);
+                    }}
+                  />
                 ))
               )}
             </tbody>
@@ -293,6 +326,49 @@ export default function DashboardBookings() {
           ))}
         </div>
       </section>
+
+      {isFormOpen && (
+        <BookingFormModal
+          initialBooking={editingBooking}
+          onClose={() => {
+            setIsFormOpen(false);
+            setEditingBooking(null);
+          }}
+          onSubmit={(booking) => {
+            if (editingBooking) {
+              setBookings((current) =>
+                current.map((item) => (item.id === editingBooking.id ? { ...item, ...booking } : item))
+              );
+            } else {
+              const generatedId = `BKG-${String(bookings.length + 1).padStart(3, '0')}`;
+              setBookings((current) => [{ ...booking, id: generatedId }, ...current]);
+              setCurrentPage(1);
+            }
+            setEditingBooking(null);
+          }}
+        />
+      )}
+
+      {isConfirmOpen && bookingToDelete && (
+        <ConfirmDialog
+          title="Xác nhận xóa"
+          message={`Bạn có chắc muốn xóa booking ${bookingToDelete.id}?`}
+          onCancel={() => {
+            setIsConfirmOpen(false);
+            setBookingToDelete(null);
+          }}
+          onConfirm={() => {
+            setBookings((current) => {
+              const updated = current.filter((item) => item.id !== bookingToDelete.id);
+              const newTotalPages = Math.max(1, Math.ceil(updated.length / pageSize));
+              setCurrentPage((page) => Math.min(page, newTotalPages));
+              return updated;
+            });
+            setIsConfirmOpen(false);
+            setBookingToDelete(null);
+          }}
+        />
+      )}
 
       {isDetailOpen && selectedBooking && (
         <BookingDetailModal
