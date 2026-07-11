@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { bookingList } from '@/data/bookings';
 import BookingRow from '@/components/dashboard/BookingRow';
@@ -9,6 +9,7 @@ import BookingStatistics from '@/components/dashboard/BookingStatistics';
 import BookingFormModal from '@/components/dashboard/BookingFormModal';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { Booking } from '@/types/booking';
+import BookingStatusBadge from '@/components/dashboard/BookingStatusBadge';
 
 const statusOptions = ['', 'Đã xác nhận', 'Chờ', 'Huỷ'];
 const sortOptions = [
@@ -31,7 +32,16 @@ export default function DashboardBookings() {
   const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
   const [bookingToDelete, setBookingToDelete] = useState<Booking | null>(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const pageSize = 10;
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setIsLoading(false);
+    }, 600);
+
+    return () => window.clearTimeout(timer);
+  }, []);
 
   const normalizedSearchTerm = useMemo(
     () => searchTerm.trim().toLowerCase(),
@@ -87,9 +97,11 @@ export default function DashboardBookings() {
     return filteredBookings.slice(start, start + pageSize);
   }, [filteredBookings, effectivePage]);
 
+  const hasActiveFilters = Boolean(searchTerm.trim() || statusFilter || sortKey);
+
   return (
     <div className="space-y-6">
-      <section className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-500">Đặt vé</p>
@@ -201,29 +213,48 @@ export default function DashboardBookings() {
         </div>
 
         <div className="mt-6 overflow-x-auto">
-          <table className="min-w-full border-collapse text-left text-sm">
-            <thead className="bg-slate-50 text-slate-500">
-              <tr>
-                <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Mã vé</th>
-                <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Hành khách</th>
-                <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Từ</th>
-                <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Đến</th>
-                <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Ngày bay</th>
-                <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Hạng</th>
-                <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Giá</th>
-                <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Trạng thái</th>
-                <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Thao tác</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white">
-              {paginatedBookings.length === 0 ? (
+          {isLoading ? (
+            <div className="space-y-3 rounded-3xl border border-slate-200 bg-slate-50 p-4">
+              {[...Array(4)].map((_, index) => (
+                <div key={index} className="grid grid-cols-8 gap-3">
+                  {[...Array(8)].map((__, skeletonIndex) => (
+                    <div
+                      key={`${index}-${skeletonIndex}`}
+                      className="h-10 animate-pulse rounded-2xl bg-slate-200"
+                    />
+                  ))}
+                </div>
+              ))}
+            </div>
+          ) : paginatedBookings.length === 0 ? (
+            <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-slate-50 px-6 py-12 text-center">
+              <div className="rounded-full bg-white p-4 shadow-sm">
+                <span className="text-2xl">✈️</span>
+              </div>
+              <h3 className="mt-4 text-lg font-semibold text-slate-900">Không có booking phù hợp</h3>
+              <p className="mt-2 max-w-md text-sm text-slate-600">
+                {hasActiveFilters
+                  ? 'Thử đổi từ khóa tìm kiếm hoặc bộ lọc để xem thêm kết quả.'
+                  : 'Hiện chưa có booking nào trong danh sách này.'}
+              </p>
+            </div>
+          ) : (
+            <table className="min-w-full border-collapse text-left text-sm">
+              <thead className="bg-slate-50 text-slate-500">
                 <tr>
-                  <td className="px-6 py-8 text-center text-slate-500" colSpan={8}>
-                    Không tìm thấy booking phù hợp.
-                  </td>
+                  <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Mã vé</th>
+                  <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Hành khách</th>
+                  <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Từ</th>
+                  <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Đến</th>
+                  <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Ngày bay</th>
+                  <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Hạng</th>
+                  <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Giá</th>
+                  <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Trạng thái</th>
+                  <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Thao tác</th>
                 </tr>
-              ) : (
-                paginatedBookings.map((booking) => (
+              </thead>
+              <tbody className="bg-white">
+                {paginatedBookings.map((booking) => (
                   <BookingRow
                     key={booking.id}
                     booking={booking}
@@ -240,10 +271,10 @@ export default function DashboardBookings() {
                       setIsConfirmOpen(true);
                     }}
                   />
-                ))
-              )}
-            </tbody>
-          </table>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
 
         <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -274,56 +305,58 @@ export default function DashboardBookings() {
         </div>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {paginatedBookings.map((booking) => (
-            <button
-              key={booking.id}
-              type="button"
-              onClick={() => {
-                setSelectedBooking(booking);
-                setIsDetailOpen(true);
-              }}
-              className="rounded-3xl border border-slate-200 bg-slate-50 p-5 text-left hover:bg-slate-100"
-            >
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-sm font-medium text-slate-900">{booking.id}</p>
-                <span
-                  className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-                    booking.status === 'Đã xác nhận'
-                      ? 'bg-emerald-100 text-emerald-700'
-                      : booking.status === 'Chờ'
-                      ? 'bg-amber-100 text-amber-700'
-                      : 'bg-rose-100 text-rose-700'
-                  }`}
+          {isLoading
+            ? [...Array(3)].map((_, index) => (
+                <div key={index} className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                  <div className="h-4 w-24 animate-pulse rounded-full bg-slate-200" />
+                  <div className="mt-4 space-y-2">
+                    <div className="h-3 w-full animate-pulse rounded-full bg-slate-200" />
+                    <div className="h-3 w-3/4 animate-pulse rounded-full bg-slate-200" />
+                    <div className="h-3 w-5/6 animate-pulse rounded-full bg-slate-200" />
+                    <div className="h-3 w-2/3 animate-pulse rounded-full bg-slate-200" />
+                  </div>
+                </div>
+              ))
+            : paginatedBookings.map((booking) => (
+                <button
+                  key={booking.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedBooking(booking);
+                    setIsDetailOpen(true);
+                  }}
+                  className="rounded-3xl border border-slate-200 bg-slate-50 p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-100"
                 >
-                  {booking.status}
-                </span>
-              </div>
-              <div className="mt-4 space-y-2 text-sm text-slate-700">
-                <p>
-                  <span className="font-medium text-slate-900">Hành khách:</span> {booking.passenger}
-                </p>
-                <p>
-                  <span className="font-medium text-slate-900">Từ:</span> {booking.from}
-                </p>
-                <p>
-                  <span className="font-medium text-slate-900">Đến:</span> {booking.to}
-                </p>
-                <p>
-                  <span className="font-medium text-slate-900">Ngày bay:</span> {booking.date}
-                </p>
-                <p>
-                  <span className="font-medium text-slate-900">Hạng:</span> {booking.seat}
-                </p>
-                <p>
-                  <span className="font-medium text-slate-900">Giá:</span>{' '}
-                  {new Intl.NumberFormat('vi-VN', {
-                    style: 'currency',
-                    currency: 'VND',
-                  }).format(booking.price)}
-                </p>
-              </div>
-            </button>
-          ))}
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-medium text-slate-900">{booking.id}</p>
+                    <BookingStatusBadge status={booking.status} />
+                  </div>
+                  <div className="mt-4 space-y-2 text-sm text-slate-700">
+                    <p>
+                      <span className="font-medium text-slate-900">Hành khách:</span> {booking.passenger}
+                    </p>
+                    <p>
+                      <span className="font-medium text-slate-900">Từ:</span> {booking.from}
+                    </p>
+                    <p>
+                      <span className="font-medium text-slate-900">Đến:</span> {booking.to}
+                    </p>
+                    <p>
+                      <span className="font-medium text-slate-900">Ngày bay:</span> {booking.date}
+                    </p>
+                    <p>
+                      <span className="font-medium text-slate-900">Hạng:</span> {booking.seat}
+                    </p>
+                    <p>
+                      <span className="font-medium text-slate-900">Giá:</span>{' '}
+                      {new Intl.NumberFormat('vi-VN', {
+                        style: 'currency',
+                        currency: 'VND',
+                      }).format(booking.price)}
+                    </p>
+                  </div>
+                </button>
+              ))}
         </div>
       </section>
 
