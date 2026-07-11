@@ -1,4 +1,5 @@
 import { Booking } from '@/types/booking';
+import BookingStatusBadge from '@/components/dashboard/BookingStatusBadge';
 
 export default function BookingRow({
   booking,
@@ -26,15 +27,7 @@ export default function BookingRow({
         }).format(booking.price)}
       </td>
       <td className="cursor-pointer px-6 py-4" onClick={() => onOpen?.(booking)}>
-        <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-          booking.status === 'Đã xác nhận'
-            ? 'bg-emerald-100 text-emerald-700'
-            : booking.status === 'Chờ'
-            ? 'bg-amber-100 text-amber-700'
-            : 'bg-rose-100 text-rose-700'
-        }`}>
-          {booking.status}
-        </span>
+        <BookingStatusBadge status={booking.status} />
       </td>
       <td className="px-6 py-4">
         <div className="flex items-center gap-2">
