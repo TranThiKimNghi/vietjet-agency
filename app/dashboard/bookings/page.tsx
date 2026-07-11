@@ -3,21 +3,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { bookingList } from '@/data/bookings';
-import BookingRow from '@/components/dashboard/BookingRow';
 import BookingDetailModal from '@/components/dashboard/BookingDetailModal';
 import BookingStatistics from '@/components/dashboard/BookingStatistics';
 import BookingFormModal from '@/components/dashboard/BookingFormModal';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { Booking } from '@/types/booking';
-import BookingStatusBadge from '@/components/dashboard/BookingStatusBadge';
-
-const statusOptions = ['', 'Đã xác nhận', 'Chờ', 'Huỷ'];
-const sortOptions = [
-  { value: '', label: 'Không sắp xếp' },
-  { value: 'id', label: 'Mã vé' },
-  { value: 'date', label: 'Ngày bay' },
-  { value: 'price', label: 'Giá' },
-];
+import BookingToolbar from '@/components/dashboard/BookingToolbar';
+import BookingTableSection from '@/components/dashboard/BookingTableSection';
 
 export default function DashboardBookings() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -136,228 +128,47 @@ export default function DashboardBookings() {
       </section>
 
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="grid gap-4 xl:grid-cols-[1.4fr_0.8fr_0.8fr_0.8fr]">
-          <div>
-            <label className="block text-sm font-medium text-slate-700" htmlFor="booking-search">
-              Tìm kiếm
-            </label>
-            <input
-              id="booking-search"
-              type="text"
-              value={searchTerm}
-              onChange={(event) => {
-                setSearchTerm(event.target.value);
-                setCurrentPage(1);
-              }}
-              placeholder="Mã vé hoặc tên hành khách"
-              className="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-200"
-            />
-          </div>
+        <BookingToolbar
+          searchTerm={searchTerm}
+          statusFilter={statusFilter}
+          sortKey={sortKey}
+          sortDirection={sortDirection}
+          onSearchChange={(value) => {
+            setSearchTerm(value);
+            setCurrentPage(1);
+          }}
+          onStatusChange={(value) => {
+            setStatusFilter(value);
+            setCurrentPage(1);
+          }}
+          onSortKeyChange={(value) => {
+            setSortKey(value);
+            setCurrentPage(1);
+          }}
+          onSortDirectionChange={(value) => setSortDirection(value)}
+        />
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700" htmlFor="status-filter">
-              Trạng thái
-            </label>
-            <select
-              id="status-filter"
-              value={statusFilter}
-              onChange={(event) => {
-                setStatusFilter(event.target.value);
-                setCurrentPage(1);
-              }}
-              className="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-200"
-            >
-              {statusOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option || 'Tất cả'}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-700" htmlFor="sort-key">
-              Sắp xếp theo
-            </label>
-            <select
-              id="sort-key"
-              value={sortKey}
-              onChange={(event) => {
-                setSortKey(event.target.value);
-                setCurrentPage(1);
-              }}
-              className="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-200"
-            >
-              {sortOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-700" htmlFor="sort-direction">
-              Hướng sắp xếp
-            </label>
-            <select
-              id="sort-direction"
-              value={sortDirection}
-              onChange={(event) => setSortDirection(event.target.value as 'asc' | 'desc')}
-              className="mt-2 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-200"
-            >
-              <option value="asc">Tăng dần</option>
-              <option value="desc">Giảm dần</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="mt-6 overflow-x-auto">
-          {isLoading ? (
-            <div className="space-y-3 rounded-3xl border border-slate-200 bg-slate-50 p-4">
-              {[...Array(4)].map((_, index) => (
-                <div key={index} className="grid grid-cols-8 gap-3">
-                  {[...Array(8)].map((__, skeletonIndex) => (
-                    <div
-                      key={`${index}-${skeletonIndex}`}
-                      className="h-10 animate-pulse rounded-2xl bg-slate-200"
-                    />
-                  ))}
-                </div>
-              ))}
-            </div>
-          ) : paginatedBookings.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-300 bg-slate-50 px-6 py-12 text-center">
-              <div className="rounded-full bg-white p-4 shadow-sm">
-                <span className="text-2xl">✈️</span>
-              </div>
-              <h3 className="mt-4 text-lg font-semibold text-slate-900">Không có booking phù hợp</h3>
-              <p className="mt-2 max-w-md text-sm text-slate-600">
-                {hasActiveFilters
-                  ? 'Thử đổi từ khóa tìm kiếm hoặc bộ lọc để xem thêm kết quả.'
-                  : 'Hiện chưa có booking nào trong danh sách này.'}
-              </p>
-            </div>
-          ) : (
-            <table className="min-w-full border-collapse text-left text-sm">
-              <thead className="bg-slate-50 text-slate-500">
-                <tr>
-                  <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Mã vé</th>
-                  <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Hành khách</th>
-                  <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Từ</th>
-                  <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Đến</th>
-                  <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Ngày bay</th>
-                  <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Hạng</th>
-                  <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Giá</th>
-                  <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Trạng thái</th>
-                  <th className="px-6 py-4 font-medium uppercase tracking-[0.2em]">Thao tác</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white">
-                {paginatedBookings.map((booking) => (
-                  <BookingRow
-                    key={booking.id}
-                    booking={booking}
-                    onOpen={(bookingData) => {
-                      setSelectedBooking(bookingData);
-                      setIsDetailOpen(true);
-                    }}
-                    onEdit={(bookingData) => {
-                      setEditingBooking(bookingData);
-                      setIsFormOpen(true);
-                    }}
-                    onDelete={(bookingData) => {
-                      setBookingToDelete(bookingData);
-                      setIsConfirmOpen(true);
-                    }}
-                  />
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-
-        <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm text-slate-600">
-            Hiển thị {paginatedBookings.length} / {filteredBookings.length} booking
-          </p>
-          <div className="flex items-center justify-center gap-3">
-            <button
-              type="button"
-              onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-              disabled={effectivePage === 1}
-              className="rounded-3xl border border-slate-200 bg-white px-4 py-2 text-sm disabled:opacity-50"
-            >
-              Previous
-            </button>
-            <span className="text-sm text-slate-700">
-              Trang {effectivePage} / {totalPages}
-            </span>
-            <button
-              type="button"
-              onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
-              disabled={effectivePage === totalPages}
-              className="rounded-3xl border border-slate-200 bg-white px-4 py-2 text-sm disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
-        </div>
-
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {isLoading
-            ? [...Array(3)].map((_, index) => (
-                <div key={index} className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
-                  <div className="h-4 w-24 animate-pulse rounded-full bg-slate-200" />
-                  <div className="mt-4 space-y-2">
-                    <div className="h-3 w-full animate-pulse rounded-full bg-slate-200" />
-                    <div className="h-3 w-3/4 animate-pulse rounded-full bg-slate-200" />
-                    <div className="h-3 w-5/6 animate-pulse rounded-full bg-slate-200" />
-                    <div className="h-3 w-2/3 animate-pulse rounded-full bg-slate-200" />
-                  </div>
-                </div>
-              ))
-            : paginatedBookings.map((booking) => (
-                <button
-                  key={booking.id}
-                  type="button"
-                  onClick={() => {
-                    setSelectedBooking(booking);
-                    setIsDetailOpen(true);
-                  }}
-                  className="rounded-3xl border border-slate-200 bg-slate-50 p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-100"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-sm font-medium text-slate-900">{booking.id}</p>
-                    <BookingStatusBadge status={booking.status} />
-                  </div>
-                  <div className="mt-4 space-y-2 text-sm text-slate-700">
-                    <p>
-                      <span className="font-medium text-slate-900">Hành khách:</span> {booking.passenger}
-                    </p>
-                    <p>
-                      <span className="font-medium text-slate-900">Từ:</span> {booking.from}
-                    </p>
-                    <p>
-                      <span className="font-medium text-slate-900">Đến:</span> {booking.to}
-                    </p>
-                    <p>
-                      <span className="font-medium text-slate-900">Ngày bay:</span> {booking.date}
-                    </p>
-                    <p>
-                      <span className="font-medium text-slate-900">Hạng:</span> {booking.seat}
-                    </p>
-                    <p>
-                      <span className="font-medium text-slate-900">Giá:</span>{' '}
-                      {new Intl.NumberFormat('vi-VN', {
-                        style: 'currency',
-                        currency: 'VND',
-                      }).format(booking.price)}
-                    </p>
-                  </div>
-                </button>
-              ))}
-        </div>
+        <BookingTableSection
+          isLoading={isLoading}
+          paginatedBookings={paginatedBookings}
+          filteredBookingsCount={filteredBookings.length}
+          effectivePage={effectivePage}
+          totalPages={totalPages}
+          hasActiveFilters={hasActiveFilters}
+          onOpenBooking={(bookingData) => {
+            setSelectedBooking(bookingData);
+            setIsDetailOpen(true);
+          }}
+          onEditBooking={(bookingData) => {
+            setEditingBooking(bookingData);
+            setIsFormOpen(true);
+          }}
+          onDeleteBooking={(bookingData) => {
+            setBookingToDelete(bookingData);
+            setIsConfirmOpen(true);
+          }}
+          onPageChange={(page) => setCurrentPage(() => Math.max(1, Math.min(totalPages, page)))}
+        />
       </section>
 
       {isFormOpen && (
